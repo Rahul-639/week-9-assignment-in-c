@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+int cmp(const void *a, const void *b) {
+    return (*(int*)a - *(int*)b);
+}
+void findPairs(int arr[], int n) {
+    qsort(arr, n, sizeof(int), cmp);
+    int left = 0, right = n - 1;
+    int found = 0;
+    printf("[");
+    while (left < right) {
+        int sum = arr[left] + arr[right];
+        if (sum == 0) {
+            if (found > 0) printf(",");
+            printf("[%d,%d]", arr[left], arr[right]);
+            found++;
+            int leftVal = arr[left], rightVal = arr[right];
+            while (left < right && arr[left] == leftVal) left++;  
+            while (left < right && arr[right] == rightVal) right--; 
+        }
+        else if (sum < 0) {
+            left++;
+        }
+        else {
+            right--;
+        }
+    }
+    printf("]\n");
+    if (!found) {
+        printf("[]\n");  
+    }
+}
+int main() {
+    int arr1[] = {-1, 0, 1, 2, -1, -4};
+    int n1 = sizeof(arr1) / sizeof(arr1[0]);
+    findPairs(arr1, n1);
+    int arr2[] = {6, 1, 8, 0, 4, -9, -1, -10, -6, -5};
+    int n2 = sizeof(arr2) / sizeof(arr2[0]);
+    findPairs(arr2, n2);  
+    return 0;
+}
