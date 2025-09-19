@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h> 
+
+
+typedef struct Node {
+    char *key;
+    int count;
+    struct Node *next;
+} Node;
+
+
+
+
+unsigned long hash_str(const char *str) {
+    unsigned long hash = 5381;
+    int c;
+    while ((c = *str++))
+        hash = ((hash << 5) + hash) + c; 
+    return hash % TABLE_SIZE;
+}
+
+Node *find_node(const char *key) {
+    unsigned long idx = hash_str(key);
+    Node *cur = table[idx];
+    while (cur) {
+        if (strcmp(cur->key, key) == 0) return cur;
+        cur = cur->next;
+    }
+    return NULL;
+}
+
+void insert_or_inc(const char *key) {
+    unsigned long idx = hash_str(key);
+    Node *cur = table[idx];
+    while (cur) {
+        if (strcmp(cur->key, key) == 0) {
+            cur->count++;
+            return;
+        }
+        cur = cur->next;
+    }
+   
+    Node *node = (Node*)malloc(sizeof(Node));
+    node->key = strdup(key);
+    node->count = 1;
+    node->next = table[idx];
+    table[idx] = node;
+}
+
+int dec_if_exists(const char *key) {
+    Node *node = find_node(key);
+    if (!node) return 0;
+    if (node->count <= 0) return 0;
+    node->count--;
+    return 1;
+}
+
+int main() {
+    int m, n;
+    if (scanf("%d %d", &m, &n) != 2) return 0;
+
+  
+    char buf[100 + 1]; // words are alphabetic; 100 should be more than enough
+    for (int i = 0; i < m; ++i) {
+        scanf("%100s", buf);
+        insert_or_inc(buf);
+    }
+
+    
+    int possible = 1;
+    for (int i = 0; i < n; ++i) {
+        scanf("%100s", buf);
+        if (possible) {
+            if (!dec_if_exists(buf)) {
+                possible = 0;
+            }
+        }
+    }
+
+    if (possible) printf("Yes\n");
+    else printf("No\n");
+
+
+    return 0;
+}
