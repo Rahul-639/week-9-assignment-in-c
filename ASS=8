@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+struct Node {
+    int sum;
+    int freq;
+    struct Node* next;
+};
+struct Node* hashTable[SIZE];
+int hash(int key) {
+    if (key < 0) key = -key;
+    return key % SIZE;
+}
+void insert(int sum) {
+    int idx = hash(sum);
+    struct Node* curr = hashTable[idx];
+    while (curr) {
+        if (curr->sum == sum) {
+            curr->freq++;
+            return;
+        }
+        curr = curr->next;
+    }
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->sum = sum;
+    newNode->freq = 1;
+    newNode->next = hashTable[idx];
+    hashTable[idx] = newNode;
+}
+int getFreq(int sum) {
+    int idx = hash(sum);
+    struct Node* curr = hashTable[idx];
+    while (curr) {
+        if (curr->sum == sum) return curr->freq;
+        curr = curr->next;
+    }
+    return 0;
+}
+long long countZeroSumSubarrays(int arr[], int n) {
+    long long count = 0;
+    int prefixSum = 0;
+
+    for (int i = 0; i < n; i++) {
+        prefixSum += arr[i];
+
+        if (prefixSum == 0) count++;
+
+        count += getFreq(prefixSum);
+
+        insert(prefixSum);
+    }
+    return count;
+}
+int main() {
+    int arr[] = {6, -1, -3, 4, -2, 2, 4, 6, -12, -7};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    printf("%lld\n", countZeroSumSubarrays(arr, n));  
+    int arr2[] = {1, -1, 2, -2};
+    int n2 = sizeof(arr2) / sizeof(ar2[0]);
+    printf("%lld\n", countZeroSumSubarrays(arr2, n2));  
+    return 0;
+}
